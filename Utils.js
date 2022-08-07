@@ -1,3 +1,39 @@
+class StreamBuffer{
+	constructor(array=[]){this.index=0;this.array=new Uint8Array(array);}
+	readByte(){return this.array[this.index++];}
+	read(count){
+		let arr=new Uint8Array(Math.min(count,this.array.length-this.index));
+		for(let i=0;i<arr.length;i++)arr.set([this.readByte()],i);
+		return arr;
+	}
+	writeByte(byte){this.array=new Uint8Array([...this.array,byte]);this.index++;}
+	write(array){for(let i=0;i<array.length;i++)this.writeByte(array[i])}
+}
+
+/*types*/
+function protoReverse(){
+	return this.map(a=>new this.constructor(new Uint8Array(new this.constructor([a]).buffer).reverse().buffer)[0])
+}
+function protoByte(){
+	return new Uint8Array(this.reversed().buffer);
+}
+Uint16Array.prototype.bytes=
+Int16Array.prototype.bytes=
+BigUint64Array.prototype.bytes=
+BigInt64Array.prototype.bytes=
+Float64Array.prototype.bytes=
+Float32Array.prototype.bytes=
+Uint32Array.prototype.bytes=
+Int32Array.prototype.bytes=protoByte;
+Uint16Array.prototype.reversed=
+Int16Array.prototype.reversed=
+BigUint64Array.prototype.reversed=
+BigInt64Array.prototype.reversed=
+Float64Array.prototype.reversed=
+Float32Array.prototype.reversed=
+Uint32Array.prototype.reversed=
+Int32Array.prototype.reversed=protoReverse;
+
 class TType {
 	constructor(type, typeCode, value) {
 		this.type = type;
