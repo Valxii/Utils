@@ -1,3 +1,26 @@
+class TType {
+	constructor(type, typeCode, value) {
+		this.type = type;
+		this.typeCode = typeCode;
+		this.value = value;
+	}
+	result() {
+		return this.value
+	} //bytes
+	size() {
+		return this.value.length
+	} //number
+	read(buf, full = 0, size = -1) {
+		let res = new this.constructor(new Uint8Array(
+			buf.read(size + 1 ? size : this.size())
+		));
+		return full ? res : res.value;
+	}
+	write(buf, full = 0) {
+		if (full) buf.writeByte(this.typeCode);
+		buf.write(this.result());
+	}
+}
 class Byte extends TType {
 	constructor(value = 0) {
 		if (value.buffer) {
