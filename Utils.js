@@ -1,38 +1,184 @@
-class StreamBuffer{
-	constructor(array=[]){this.index=0;this.array=new Uint8Array(array);}
-	readByte(){return this.array[this.index++];}
-	read(count){
-		let arr=new Uint8Array(Math.min(count,this.array.length-this.index));
-		for(let i=0;i<arr.length;i++)arr.set([this.readByte()],i);
-		return arr;
-	}
-	writeByte(byte){this.array=new Uint8Array([...this.array,byte]);this.index++;}
-	write(array){for(let i=0;i<array.length;i++)this.writeByte(array[i])}
+function Enum([definition]) {
+	let ci = 0;
+	return Object.freeze(
+		definition.trim()
+		.replace(/\s*,\s*/g, ' ')
+		.replace(/\s*=\s*/g, '=')
+		.split(/\s+/)
+		.reduce((old, p) => {
+			ci = p.split('=')[1] ? Number(p.split('=')[1]) : ci;
+			return {
+				...old,
+					[p.split('=')[0]]: ci++
+			}
+		}, {})
+	);
 }
 
-/*types*/
-function protoReverse(){
-	return this.map(a=>new this.constructor(new Uint8Array(new this.constructor([a]).buffer).reverse().buffer)[0])
+const MVEventCodes = Enum `
+NoCodeSet,
+UnregisterWorldObject,
+UpdateWorldObject,
+UpdateWorldObjectData,
+UpdateWorldObjectDataPartial,
+RemoveWorldObjectDataPartial,
+TransferOwnership,
+UpdateNetworkInput,
+RegisterPrototype,
+UnregisterPrototype,
+UpdatePrototype,
+UpdatePrototypeScale,
+UpdateTerrain,
+AddLink,
+RemoveLink,
+RemoveItemFromInventory,
+FriendRequest,
+FriendUpdate,
+TriggerBoxEnter,
+TriggerBoxExit,
+TriggerBoxStayBegin,
+TriggerBoxStayEnd,
+Clone,
+LockHierarchy,
+BlueprintCreationDone,
+WoUniquePrototype,
+GameStateChange,
+SyncAvatarStatus,
+ResetLogicChunk,
+UpdateWorldObjectRunTimeData,
+PickupItemStateChange,
+UpdateLineOfFire,
+WorldObjectRPCEvent,
+XPReceivedEvent,
+PostGameMsgEvent,
+SetTeam,
+AddObjectLink,
+RemoveObjectLink,
+TransferWorldObjectsToGroup,
+CloneWorldObjectTree,
+GetGameBatch,
+GameQueryReady,
+PostWinnerReport,
+CollectiblePickedUp,
+SetWorldObjectsToPurchasedEvent,
+AchievementUnlockedEvent,
+AttachWorldObjectToSeat,
+DetachWorldObjectFromVehicle,
+SpawnVehicleWithDriver,
+Reward,
+RuntimeEvent,
+ResetTerrainEvent,
+UpdateGameStat,
+UpdateGameStatType,
+UpdateAvatarMetaData,
+LevelChanged,
+GameBoostEvent,
+NotificationEvent,
+RequestMaterials,
+GetPlanetOwnershipTypes,
+GetItemCategories,
+SetupUserPlayMode,
+GameSnapshotData,
+SetActorReady,
+RequestFriends,
+GetItemInventory,
+GetItemShopInventory,
+GetBuiltInItemBusinessData,
+LargeDBQueryAvatarShopInventory,
+InitializeAvatarEdit,
+GetActiveAvatar,
+PendingByteDataBatch,
+SwitchAvatar,
+SyncronizePing,
+StartRewardCountDown,
+RewardIsReady,
+NumberOfPendingRewards,
+JoinNotification,
+CloneWorldObjectTreeWithPosition,
+CloneTempWorldObjectWithOriginalReferenceEvent,
+LogicObjectFiringStateChange,
+LogicFrame,
+CollectTheItemDropOff,
+LogicFastForward,
+LogicFastForwardEventImmediate,
+ForceDetachWorldObjectFromVehicle,
+XPReward,
+GetProfileMetaData,
+ServerError,
+SetSayChatBubbleVisible,
+GetPublishedPlanetProfileData,
+PlayerPlanetData,
+PlayerPlanetRemote,
+HighScores,
+GoldRewardedForLevel,
+NextLevelGoldReward,
+PlayerTierStateCalculatorChanged,
+GetProjectEarnings,
+TopHighScores,
+GetKogamaVat,
+GetSubscriptionPerksData,
+SetupUserAvatarEdit,
+SetupUserBuildMode,
+SetActiveSpawnRole,
+ReplicateSpawnRoleData,
+SetSpawnRoleBody,
+XPRewardedAdReady,
+Join = 255,
+Leave = 254,
+PropertiesChanged = 253
+`;
+
+class StreamBuffer {
+	constructor(array = []) {
+		this.index = 0;
+		this.array = new Uint8Array(array);
+	}
+	readByte() {
+		return this.array[this.index++];
+	}
+	read(count) {
+		let arr = new Uint8Array(Math.min(count, this.array.length - this.index));
+		for (let i = 0; i < arr.length; i++) arr.set([this.readByte()], i);
+		return arr;
+	}
+	writeByte(byte) {
+		this.array = new Uint8Array([...this.array, byte]);
+		this.index++;
+	}
+	write(array) {
+		for (let i = 0; i < array.length; i++) this.writeByte(array[i])
+	}
 }
-function protoByte(){
-	return new Uint8Array(this.reversed().buffer);
+
+// TYPES
+function protoReverse() {
+	return this.map(a => new this.constructor(new Uint8Array(new this.constructor([a])
+			.buffer)
+		.reverse()
+		.buffer)[0])
 }
-Uint16Array.prototype.bytes=
-Int16Array.prototype.bytes=
-BigUint64Array.prototype.bytes=
-BigInt64Array.prototype.bytes=
-Float64Array.prototype.bytes=
-Float32Array.prototype.bytes=
-Uint32Array.prototype.bytes=
-Int32Array.prototype.bytes=protoByte;
-Uint16Array.prototype.reversed=
-Int16Array.prototype.reversed=
-BigUint64Array.prototype.reversed=
-BigInt64Array.prototype.reversed=
-Float64Array.prototype.reversed=
-Float32Array.prototype.reversed=
-Uint32Array.prototype.reversed=
-Int32Array.prototype.reversed=protoReverse;
+
+function protoByte() {
+	return new Uint8Array(this.reversed()
+		.buffer);
+}
+
+Uint16Array.prototype.bytes =
+	Int16Array.prototype.bytes =
+	BigUint64Array.prototype.bytes =
+	BigInt64Array.prototype.bytes =
+	Float64Array.prototype.bytes =
+	Float32Array.prototype.bytes =
+	Uint32Array.prototype.bytes =
+	Int32Array.prototype.bytes = protoByte;
+Uint16Array.prototype.reversed =
+	Int16Array.prototype.reversed =
+	BigUint64Array.prototype.reversed =
+	BigInt64Array.prototype.reversed =
+	Float64Array.prototype.reversed =
+	Float32Array.prototype.reversed =
+	Uint32Array.prototype.reversed =
+	Int32Array.prototype.reversed = protoReverse;
 
 class TType {
 	constructor(type, typeCode, value) {
@@ -42,10 +188,10 @@ class TType {
 	}
 	result() {
 		return this.value
-	} //bytes
+	} // BYTES
 	size() {
 		return this.value.length
-	} //number
+	} // NUMBER
 	read(buf, full = 0, size = -1) {
 		let res = new this.constructor(new Uint8Array(
 			buf.read(size + 1 ? size : this.size())
@@ -57,6 +203,7 @@ class TType {
 		buf.write(this.result());
 	}
 }
+
 class Byte extends TType {
 	constructor(value = 0) {
 		if (value.buffer) {
@@ -72,6 +219,7 @@ class Byte extends TType {
 		return 1;
 	}
 }
+
 class Bool extends TType {
 	constructor(value = 0) {
 		if (value.buffer) {
@@ -87,6 +235,7 @@ class Bool extends TType {
 		return 1;
 	}
 }
+
 class Short extends TType {
 	constructor(value = 0) {
 		if (value.buffer) {
@@ -104,6 +253,7 @@ class Short extends TType {
 		return 2;
 	}
 }
+
 class Int extends TType {
 	constructor(value = 0) {
 		if (value.buffer) {
@@ -121,6 +271,7 @@ class Int extends TType {
 		return 4;
 	}
 }
+
 class Long extends TType {
 	constructor(value = 0) {
 		if (value.buffer) {
@@ -138,6 +289,7 @@ class Long extends TType {
 		return 8;
 	}
 }
+
 class Float extends TType {
 	constructor(value = 0) {
 		if (value.buffer) {
@@ -155,6 +307,7 @@ class Float extends TType {
 		return 4;
 	}
 }
+
 class Double extends TType {
 	constructor(value = 0) {
 		if (value.buffer) {
@@ -172,6 +325,7 @@ class Double extends TType {
 		return 8;
 	}
 }
+
 class ByteArray extends TType {
 	constructor(value = []) {
 		super('ByteArray', 120, new Uint8Array([...value]))
@@ -194,6 +348,7 @@ class ByteArray extends TType {
 		return full ? res : res.value;
 	}
 }
+
 class Null extends TType {
 	constructor(value = 0) {
 		super('Null', 42, null);
@@ -205,6 +360,7 @@ class Null extends TType {
 		return 0;
 	}
 }
+
 class TString extends TType {
 	constructor(value = '') {
 		if (value.buffer) {
@@ -235,6 +391,7 @@ class TString extends TType {
 		return full ? res : res.value;
 	}
 }
+
 class TArray extends TType { //{key:value,...}
 	constructor(value = [], TValue = 121) {
 		super('TArray', 121, value);
@@ -305,7 +462,8 @@ class TArray extends TType { //{key:value,...}
 		return full ? arr : arr.value;
 	}
 }
-class Hashtable extends TType { //{key:value,...}
+
+class Hashtable extends TType { // { key: value, ... }
 	constructor(value = {}) {
 		super('Hashtable', 104, value);
 	}
@@ -349,7 +507,8 @@ class Hashtable extends TType { //{key:value,...}
 		return full ? res : res.value;
 	}
 }
-class Dictionary extends TType { //[ {key:"",value:{}},... ]
+
+class Dictionary extends TType { // [ { key: "", value: {} }, ... ]
 	constructor(value = [], TKey, TValue) {
 		super('Dictionary', 68, value);
 		this.TKey = TKey;
@@ -403,6 +562,7 @@ class Dictionary extends TType { //[ {key:"",value:{}},... ]
 		return full ? res : res.value;
 	}
 }
+
 class Call {
 	constructor() {}
 	read(buf, full = 0, type = -1) {
@@ -414,6 +574,7 @@ class Call {
 			.read(buf, full)
 	}
 }
+
 const GpType = {
 	0: 0 && Unknown,
 
@@ -449,7 +610,7 @@ function parseSocket(arr0, full = 1) {
 			return toSocket(this)
 		}
 	};
-	//243,2,opCode,length,length
+	// 243,2,opCode,length,length
 	let buf = new StreamBuffer(arr0);
 	buf.index = 3;
 	let arr = {
